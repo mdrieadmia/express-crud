@@ -11,6 +11,7 @@ app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({extended:true}))
 
+app.use("/api/v1/users", userRoute)
 
 app.get("/", (req:Request, res:Response)=>{
     res.status(200).json({
@@ -19,121 +20,6 @@ app.get("/", (req:Request, res:Response)=>{
         author: "Riead"
     })
     res.send("This is root route")
-})
-
-app.use("/api/v1/users", userRoute)
-
-
-app.get("/api/v1/users", async (req:Request, res:Response)=>{
-    try{
-        const result = await pool.query(`
-            SELECT * FROM users
-            `);
-
-            res.status(200).json({
-                success: true,
-                message: "User Retrive Successfully.",
-                data: result.rows,
-            })
-        }catch(error:any){
-            res.status(500).json({
-                success: false,
-                message: error?.message,
-                error: error,
-            })
-        }
-    })
-    
-app.get("/api/v1/users/:id", async(req:Request, res:Response)=>{
-    try{
-        const {id} = req.params;
-        const result = await pool.query(`
-                SELECT * FROM users WHERE id = $1
-            `,
-            [id]
-        );
-        if(result.rows[0]){
-            res.status(200).json({
-                success: true,
-                message: "User Retrive Successfully.",
-                data: result.rows[0],
-            })
-        }else{
-            res.status(404).json({
-            success: false,
-            message: "User Not Found.",
-        })
-        }
-    }catch(error:any){
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            error: error,
-        })
-    }
-})
-
-app.put("/api/v1/users/:id", async(req:Request, res:Response)=>{
-    try{
-        const {id} = req.params;
-        const {name, password, age, is_active} = req.body;
-        const result = await pool.query(`
-                UPDATE users SET
-                name = COALESCE($1, name),
-                password = COALESCE($2, password),
-                age = COALESCE($3, age),
-                is_active = COALESCE($4, is_active),
-                updated_at = NOW()
-                WHERE id = $5 RETURNING *
-            `, [name??null, password??null, age??null, is_active??null, id],
-           
-        );
-        if(result.rows[0]){
-            res.status(200).json({
-                success: true,
-                message: "User Updated Successfully.",
-                data: result.rows[0],
-            })
-        }else{
-            res.status(404).json({
-            success: false,
-            message: "User Not Found.",
-        })
-        }
-    }catch(error:any){
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            error: error,
-        })
-    }
-})
-
-app.delete("/api/v1/users/:id", async(req:Request, res:Response)=>{
-    try{
-       const{id} = req.params;
-       const result = await pool.query(`DELETE FROM users WHERE id = $1 RETURNING *`,
-        [id]
-        );
-        if(result.rows[0]){
-            res.status(200).json({
-                success: true,
-                message: "User Deleted Successfully.",
-                data: result.rows[0],
-            })
-        }else{
-            res.status(404).json({
-            success: false,
-            message: "User Not Found.",
-        })
-        }
-    }catch(error:any){
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            error: error,
-        })
-    }
 })
 
 export default app;
