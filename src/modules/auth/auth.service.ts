@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs";
 import { pool } from "../../db/index.js";
 import type { ILogin } from "./auth.interface.js";
+import config from "../../config/index.js";
 
 const loginUserIntoDB = async (payload : ILogin)=>{
     const {email, password} = payload;
@@ -34,7 +35,7 @@ const loginUserIntoDB = async (payload : ILogin)=>{
 
     }
 
-    const accessToken = jwt.sign(jwtPayload, "laskdjflaskdjf", {expiresIn: "1d"})
+    const accessToken = jwt.sign(jwtPayload, config.jwt_secret as string, {expiresIn: "1d"})
 
     delete user.rows[0].password;
 
