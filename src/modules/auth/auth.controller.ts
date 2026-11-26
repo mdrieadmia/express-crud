@@ -3,6 +3,7 @@ import { authService } from "./auth.service.js";
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import config from "../../config/index.js";
 import { pool } from "../../db/index.js";
+import sendResponse from "../../utils/sendResponse.js";
 
 const loginUser = async (req : Request, res : Response)=>{
     try{
@@ -35,16 +36,18 @@ const genarateToken = async (req : Request, res : Response)=>{
     try{
     const token = req.cookies.refreshToken;
     const result = await authService.genarateAccessToken(token);
-    res.status(200).json({
+    sendResponse(res, {
+        statusCode: 200,
         success: true,
         message: "User Access Token Genarated",
-        data: result
+        data:result
     })
     }catch(error:any){
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            error: error,
+        sendResponse(res, {
+        statusCode: 500,
+        success: false,
+        message: error?.message,
+        error: error
         })
     }
 }

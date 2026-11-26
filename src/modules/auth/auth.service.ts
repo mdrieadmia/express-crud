@@ -69,7 +69,7 @@ const loginUserIntoDB = async (payload : ILogin)=>{
             role : user.rows[0].role
         }
         const accessToken = jwt.sign(jwtPayload, config.jwt_secret as string, {expiresIn: "1h"})
-        return accessToken;
+        return {accessToken};
     }
 
 export const authService = {
